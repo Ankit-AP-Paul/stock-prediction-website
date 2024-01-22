@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import Head from "next/head";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
 import Footer from "@/components/Footer";
 // import { AnimatePresence } from "framer-motion";
 import { useRouter } from "next/router";
@@ -20,13 +21,14 @@ export default function App({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main
-        className={`${montserrat.variable} font-mont bg-light  w-full min-h-screen`}
+        className={`${montserrat.variable} flex flex-row font-mont bg-light  w-full min-h-screen `}
       >
-        <Header />
-        {/* <AnimatePresence mode="wait"> */}
-        <Component key={router.asPath} {...pageProps} />
-        {/* </AnimatePresence> */}
-        <Footer />
+        <Sidebar classes="w-[20%]" />
+        <div className="w-[80%]">
+          <Header />
+          <Component key={router.asPath} {...pageProps} />
+          <Footer />
+        </div>
       </main>
     </>
   );

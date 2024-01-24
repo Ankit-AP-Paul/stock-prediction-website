@@ -70,14 +70,21 @@ const GraphDemo = ({ classes }) => {
     // Increase or decrease the number of rows based on scroll direction
     const delta = e.deltaY;
     const step = delta > 0 ? 1 : -1;
-
+    console.log(startIdx);
     if (startIdx == 0) {
-      step == -1 && endIdx <= 30 && endIdx >= 6 && setEndIdx(endIdx - 1);
-      step == 1 && endIdx < 30 && endIdx >= 5 && setEndIdx(endIdx + 1);
+      if (step == -1 && endIdx <= 30 && endIdx >= 6) setEndIdx(endIdx - 1);
+      if (step == 1 && endIdx < 30 && endIdx >= 5) setEndIdx(endIdx + 1);
     }
-    if (startIdx >= 0) {
-      step == -1 && setEndIdx(endIdx - 1) && setStartIdx(startIdx - 1);
-      step == 1 && setEndIdx(endIdx + 1) && setStartIdx(startIdx + 1);
+    if (startIdx > 0) {
+      if (step == -1 && endIdx - startIdx >= 6) {
+        setEndIdx(endIdx - 1);
+        setStartIdx(startIdx + 1);
+      }
+      if (step == 1 && endIdx - startIdx <= 30) {
+        setEndIdx(endIdx + 1);
+        setStartIdx(startIdx - 1);
+      }
+      // step == 1 && setEndIdx(endIdx + 1) && setStartIdx(startIdx + 1);
     }
 
     // startIdx + step >= 0 && setStartIdx(startIdx + step);

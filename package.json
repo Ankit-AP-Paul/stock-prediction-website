@@ -16,10 +16,13 @@
     "@mui/x-data-grid": "^6.19.1",
     "@nivo/core": "^0.83.0",
     "@nivo/line": "^0.83.0",
+    "ml5": "^0.12.2",
     "next": "14.1.0",
     "papaparse": "^5.4.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-d3-library": "^1.1.8",
+    "react-dom": "^18",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.17",

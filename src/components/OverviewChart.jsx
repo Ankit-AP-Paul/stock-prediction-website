@@ -42,7 +42,7 @@ const OverviewChart = ({ data }) => {
           },
         }}
         colors={() => "#20818C"}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 110, bottom: 80, left: 60 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -59,7 +59,7 @@ const OverviewChart = ({ data }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: -45,
-          legend: "Date",
+          legend: "",
           legendOffset: 36,
           legendPosition: "middle",
         }}

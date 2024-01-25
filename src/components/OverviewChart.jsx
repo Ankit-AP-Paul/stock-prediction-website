@@ -42,7 +42,7 @@ const OverviewChart = ({ data }) => {
           },
         }}
         colors={() => "#20818C"}
-        margin={{ top: 50, right: 110, bottom: 80, left: 60 }}
+        margin={{ top: 50, right: 60, bottom: 80, left: 60 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -52,7 +52,7 @@ const OverviewChart = ({ data }) => {
           reverse: false,
         }}
         yFormat=" >-.2f"
-        curve="catmullRom"
+        curve="linear"
         axisTop={null}
         axisRight={null}
         axisBottom={{
@@ -74,12 +74,13 @@ const OverviewChart = ({ data }) => {
         }}
         enableGridX={false}
         enableGridY={false}
-        pointSize={10}
+        pointSize={5}
         pointColor={{ theme: "background" }}
         pointBorderWidth={2}
         pointBorderColor={{ from: "serieColor" }}
         pointLabelYOffset={-12}
         useMesh={true}
+        animate={false}
         legends={
           undefined
           //   [

@@ -9,8 +9,10 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), {
 
 const GraphDemo = ({ classes }) => {
   const [data, setData] = useState([]);
+  const [datalen, setDatalen] = useState(0);
+  // console.log(datalen);
   const [startIdx, setStartIdx] = useState(0);
-  const [endIdx, setEndIdx] = useState(30);
+  const [endIdx, setEndIdx] = useState(15);
   const [isDragging, setIsDragging] = useState(false);
   const [prevScreenX, setPrevScreenX] = useState(null);
   const [isMovingRight, setIsMovingRight] = useState(false);
@@ -19,8 +21,17 @@ const GraphDemo = ({ classes }) => {
     const fetchData = async () => {
       try {
         const response = await fetch("./ITC.csv");
-        const csvData = await response.text();
+        var csvData = await response.text();
+        // console.log(csvData);
 
+        const rows = csvData.split("\n");
+        setDatalen(rows.length - 1);
+        const header = rows[0];
+        const reversedRows = [header, ...rows.slice(1).reverse()];
+        // Join the reversed rows back into CSV data
+        csvData = reversedRows.join("\n");
+
+        // console.log(csvData);
         Papa.parse(csvData, {
           header: true,
           dynamicTyping: true,
@@ -38,6 +49,7 @@ const GraphDemo = ({ classes }) => {
                 data: dataArray,
               },
             ];
+
             setData(data2);
           },
           error: function (error) {
@@ -70,17 +82,17 @@ const GraphDemo = ({ classes }) => {
     // Increase or decrease the number of rows based on scroll direction
     const delta = e.deltaY;
     const step = delta > 0 ? 1 : -1;
-    console.log(startIdx);
+    // console.log(startIdx);
     if (startIdx == 0) {
-      if (step == -1 && endIdx <= 30 && endIdx >= 6) setEndIdx(endIdx - 1);
-      if (step == 1 && endIdx < 30 && endIdx >= 5) setEndIdx(endIdx + 1);
+      if (step == -1 && endIdx <= 20 && endIdx >= 6) setEndIdx(endIdx - 1);
+      if (step == 1 && endIdx < 20 && endIdx >= 5) setEndIdx(endIdx + 1);
     }
     if (startIdx > 0) {
       if (step == -1 && endIdx - startIdx >= 6) {
         setEndIdx(endIdx - 1);
         setStartIdx(startIdx + 1);
       }
-      if (step == 1 && endIdx - startIdx <= 30) {
+      if (step == 1 && endIdx - startIdx <= 20) {
         setEndIdx(endIdx + 1);
         setStartIdx(startIdx - 1);
       }
@@ -101,17 +113,23 @@ const GraphDemo = ({ classes }) => {
       const delta = e.screenX - prevScreenX;
       setPrevScreenX(e.screenX);
       delta >= 0 ? setIsMovingRight(true) : setIsMovingRight(false);
+      // console.log(startIdx, endIdx);
+      console.log(datalen);
 
       if (!isMovingRight) {
-        setStartIdx(startIdx + 1);
-        setEndIdx(endIdx + 1);
+        startIdx + 1 <= datalen - 20 && setStartIdx(startIdx + 1);
+        endIdx + 1 <= datalen - 1 && setEndIdx(endIdx + 1);
       } else {
         startIdx - 1 >= 0 && setStartIdx(startIdx - 1);
-        endIdx - 1 >= 30 && setEndIdx(endIdx - 1);
+        endIdx - 1 >= 20 && setEndIdx(endIdx - 1);
       }
     }
   };
 
+  const handleMouseOut = () => {
+    setIsDragging(false);
+    // console.log("Out");
+  };
   const handleMouseUp = () => {
     setIsDragging(false);
     setPrevScreenX(null);
@@ -122,6 +140,7 @@ const GraphDemo = ({ classes }) => {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onMouseOut={handleMouseOut}
       className={`bg-dark bg-opacity-10 rounded-xl cursor-default  ${classes}`}
       style={{ overflow: "hidden", userSelect: "none" }}
     >

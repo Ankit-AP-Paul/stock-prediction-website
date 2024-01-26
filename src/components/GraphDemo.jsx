@@ -23,16 +23,23 @@ const GraphDemo = ({ classes, tickerName }) => {
       try {
         const response = await fetch("./data/" + tickerName + ".NS.csv");
         var csvData = await response.text();
-        console.log(csvData);
 
         const rows = csvData.split("\n");
         setDatalen(rows.length - 1);
         const header = rows[0];
         const reversedRows = [header, ...rows.slice(1).reverse()];
-        // Join the reversed rows back into CSV data
-        csvData = reversedRows.join("\n");
+        var date_close = [];
+        reversedRows.map((row) => {
+          const cols = row.split(",");
+          if (cols[0] && cols[4]) {
+            // console.log(cols[0] + "," + cols[4]);
+            date_close.push(cols[0] + "," + cols[4]);
+          }
+        });
 
-        // console.log(csvData);
+        // Join the reversed rows back into CSV data
+        csvData = date_close.join("\n");
+
         Papa.parse(csvData, {
           header: true,
           dynamicTyping: true,

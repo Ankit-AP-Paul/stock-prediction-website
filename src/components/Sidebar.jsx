@@ -6,10 +6,15 @@ import InfoIcon from "@mui/icons-material/Info";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ContactPageIcon from "@mui/icons-material/ContactPage";
 import ArrowRightIcon from "@mui/icons-material/ArrowRight";
-const SidebarItem = ({ name, Icon, classes }) => {
+
+const SidebarItem = ({ name, Icon, classes, activate = false }) => {
   return (
     <div className={`${classes} text-sm flex items-center w-full my-2 h-12`}>
-      <div className="h-full w-[2%] bg-acc1 mr-5 opacity-0" />
+      <div
+        className={`  h-full w-[2%] bg-acc2 mr-5 ${
+          activate ? "opacity-1" : "opacity-0"
+        }`}
+      />
       <Icon className="mr-3 text-sm" />
       <div className="w-[80%]">{name}</div>
       <ArrowRightIcon className="w-[15%]" />
@@ -19,12 +24,17 @@ const SidebarItem = ({ name, Icon, classes }) => {
 
 const Sidebar = ({ classes }) => {
   return (
-    <div className={`${classes} bg-alt text-light`}>
+    <div className={`${classes} bg-alt text-light dark:bg-secDark`}>
       <h1 className="h-24 flex items-center justify-center text-5xl tracking-widest w-full border-b-2 border-solid border-secLight">
         Stoki
       </h1>
       <div />
-      <SidebarItem name="Dashboard" Icon={DashboardIcon} classes="mt-8" />
+      <SidebarItem
+        name="Dashboard"
+        Icon={DashboardIcon}
+        classes="mt-8"
+        activate={true}
+      />
       <div>
         <h2 className="text-md font-bold ml-7 mt-8">MARKET DATA</h2>
         <SidebarItem name="Company Performance" Icon={TimelineIcon} />

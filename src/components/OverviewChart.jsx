@@ -1,7 +1,7 @@
 import { ResponsiveLine } from "@nivo/line";
 import React from "react";
 
-const OverviewChart = ({ data }) => {
+const OverviewChart = ({ data, themeCol }) => {
   // eslint-disable-line react-hooks/exhaustive-deps
   if (!data) return <div>Data not present</div>;
   else
@@ -12,27 +12,27 @@ const OverviewChart = ({ data }) => {
           axis: {
             domain: {
               line: {
-                stroke: "#20818C",
+                stroke: themeCol,
               },
             },
             legend: {
               text: {
-                fill: "#20818C",
+                fill: themeCol,
               },
             },
             ticks: {
               line: {
-                stroke: "#20818C",
+                stroke: themeCol,
                 strokeWidth: 1,
               },
               text: {
-                fill: "#20818C",
+                fill: themeCol,
               },
             },
           },
           legends: {
             text: {
-              fill: "#20818C",
+              fill: themeCol,
             },
           },
           tooltip: {
@@ -41,8 +41,8 @@ const OverviewChart = ({ data }) => {
             },
           },
         }}
-        colors={() => "#20818C"}
-        margin={{ top: 50, right: 60, bottom: 80, left: 60 }}
+        colors={() => themeCol}
+        margin={{ top: 50, right: 80, bottom: 80, left: 80 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -80,7 +80,7 @@ const OverviewChart = ({ data }) => {
         pointBorderColor={{ from: "serieColor" }}
         pointLabelYOffset={-12}
         useMesh={true}
-        animate={false}
+        // animate={false}
         legends={
           undefined
           //   [

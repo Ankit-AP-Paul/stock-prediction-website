@@ -7,7 +7,7 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), {
   ssr: false,
 });
 
-const GraphDemo = ({ classes, tickerName }) => {
+const GraphDemo = ({ classes, tickerName, mode }) => {
   const [data, setData] = useState([]);
   const [datalen, setDatalen] = useState(0);
   // console.log(datalen);
@@ -155,7 +155,10 @@ const GraphDemo = ({ classes, tickerName }) => {
       className={`bg-dark bg-opacity-10 rounded-xl cursor-default  ${classes}`}
       style={{ overflow: "hidden", userSelect: "none" }}
     >
-      <OverviewChart data={data} />
+      <OverviewChart
+        data={data}
+        themeCol={mode === "light" ? "#20818C" : "#DDFFF5"}
+      />
     </div>
   );
 };

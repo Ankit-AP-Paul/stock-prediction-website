@@ -96,8 +96,8 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
   };
   return (
     <div className=" col-span-2">
-      <div class="text-xs row-span-2 text-light uppercase bg-alt rounded-t-xl shadow-xl h-20 flex flex-row items-center">
-        <h3 class=" text-xl px-6">Company</h3>
+      <div class="text-xs row-span-2 text-light uppercase bg-alt dark:bg-secDark rounded-t-xl shadow-xl h-20 flex flex-row items-center">
+        <h3 class=" text-xl px-6 dark:text-light">Company</h3>
       </div>
       <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[420px]">
         <table class="w-full text-sm text-left rtl:text-right">
@@ -107,13 +107,13 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
               return (
                 <tr
                   onClick={() => handleClick(item)}
-                  class={`bg-secLight border-b border-alt  hover:bg-acc2 ${
-                    item === activeTicker && "!bg-acc2"
+                  class={`bg-secLight dark:bg-alt border-b border-alt dark:border-secLight  hover:bg-acc2 dark:hover:bg-acc2 ${
+                    item === activeTicker && "!bg-acc2 dark:!bg-acc2"
                   }`}
                 >
                   <th
                     scope="row"
-                    class="px-6 py-4 font-medium text-dark whitespace-nowrap "
+                    class="px-6 py-4 font-medium text-dark dark:text-light whitespace-nowrap "
                   >
                     {item}
                   </th>
@@ -127,7 +127,7 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
   );
 };
 
-const dashboard = () => {
+const dashboard = ({ mode }) => {
   const [tickerRows, setTickerRows] = useState([]);
   const [activeTicker, setActiveTicker] = useState("");
   // console.log(tickerRows);
@@ -164,7 +164,9 @@ const dashboard = () => {
       </Head>
       <div>
         <Layout>
-          <h2 className="text-2xl text-acc1 font-bold w-36 mb-5">DASHBOARD</h2>
+          <h2 className="text-2xl text-acc1 font-bold w-36 mb-5 dark:text-acc2">
+            DASHBOARD
+          </h2>
           <div className="grid grid-cols-8 gap-4">
             <CompanyList
               tickerList={tickerRows}
@@ -174,6 +176,7 @@ const dashboard = () => {
             <div className="col-span-6">
               {activeTicker && (
                 <GraphDemo
+                  mode={mode}
                   classes="h-[500px] w-full"
                   tickerName={activeTicker}
                 />

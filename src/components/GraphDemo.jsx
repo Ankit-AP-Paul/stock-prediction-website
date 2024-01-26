@@ -17,13 +17,13 @@ const GraphDemo = ({ classes, tickerName }) => {
   const [prevScreenX, setPrevScreenX] = useState(null);
   const [isMovingRight, setIsMovingRight] = useState(false);
 
-  console.log(tickerName);
+  // console.log(tickerName);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("./data/" + tickerName + ".NS.csv");
         var csvData = await response.text();
-        // console.log(csvData);
+        console.log(csvData);
 
         const rows = csvData.split("\n");
         setDatalen(rows.length - 1);
@@ -37,12 +37,13 @@ const GraphDemo = ({ classes, tickerName }) => {
           header: true,
           dynamicTyping: true,
           complete: function (result) {
-            const dataArray = result.data
-              .slice(startIdx, endIdx)
-              .map(({ Date, Close }) => ({
-                x: parseDate(Date),
-                y: Close,
-              }));
+            const dataArray = result.data.slice(startIdx, endIdx).map(
+              ({ Date, Close }) =>
+                Close && {
+                  x: parseDate(Date),
+                  y: Close,
+                }
+            );
 
             const data2 = [
               {

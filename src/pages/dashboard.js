@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Layout from "@/components/Layout";
 import GraphDemo from "@/components/GraphDemo";
@@ -85,7 +85,15 @@ const tickers = [
   "PIDILITIND.NS",
 ];
 
-const CompanyList = () => {
+const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
+  // console.log(activeTicker);
+  useEffect(() => {
+    setActiveTicker(tickerList[0]);
+  }, [tickerList]);
+
+  const handleClick = (item) => {
+    setActiveTicker(item);
+  };
   return (
     <div className=" col-span-2">
       <div class="text-xs row-span-2 text-light uppercase bg-alt rounded-t-xl shadow-xl h-20 flex flex-row items-center">
@@ -94,9 +102,15 @@ const CompanyList = () => {
       <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[420px]">
         <table class="w-full text-sm text-left rtl:text-right">
           <tbody className="overflow-y-scroll">
-            {tickers.map((item) => {
+            {tickerList.map((item) => {
+              // console.log(item);
               return (
-                <tr class="bg-secLight border-b border-alt  hover:bg-acc2 ">
+                <tr
+                  onClick={() => handleClick(item)}
+                  class={`bg-secLight border-b border-alt  hover:bg-acc2 ${
+                    item === activeTicker && "!bg-acc2"
+                  }`}
+                >
                   <th
                     scope="row"
                     class="px-6 py-4 font-medium text-dark whitespace-nowrap "
@@ -113,7 +127,35 @@ const CompanyList = () => {
   );
 };
 
-const about = () => {
+const dashboard = () => {
+  const [tickerRows, setTickerRows] = useState([]);
+  const [activeTicker, setActiveTicker] = useState("");
+  // console.log(tickerRows);
+
+  useEffect(() => {
+    const fetchTickers = async () => {
+      try {
+        const response = await fetch("./tickers/TICKERS.txt");
+        const tickerData = await response.text();
+
+        // Split the file content into an array of rows
+        const rows = tickerData.split("\n");
+        var tr = [];
+        rows.map((row) => {
+          row = row.replace(".NS", "");
+          tr.push(row);
+          // console.log(row);
+        });
+        // Update state with the array of rows
+        setTickerRows(tr);
+      } catch (error) {
+        console.error("Error fetching tickers:", error.message);
+      }
+    };
+
+    fetchTickers();
+  }, []);
+
   return (
     <>
       <Head>
@@ -124,9 +166,18 @@ const about = () => {
         <Layout>
           <h2 className="text-2xl text-acc1 font-bold w-36 mb-5">DASHBOARD</h2>
           <div className="grid grid-cols-8 gap-4">
-            <CompanyList />
+            <CompanyList
+              tickerList={tickerRows}
+              setActiveTicker={setActiveTicker}
+              activeTicker={activeTicker}
+            />
             <div className="col-span-6">
-              <GraphDemo classes="h-[500px] w-full" />
+              {activeTicker && (
+                <GraphDemo
+                  classes="h-[500px] w-full"
+                  tickerName={activeTicker}
+                />
+              )}
             </div>
           </div>
         </Layout>
@@ -135,4 +186,4 @@ const about = () => {
   );
 };
 
-export default about;
+export default dashboard;

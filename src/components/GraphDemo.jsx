@@ -7,7 +7,7 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), {
   ssr: false,
 });
 
-const GraphDemo = ({ classes }) => {
+const GraphDemo = ({ classes, tickerName }) => {
   const [data, setData] = useState([]);
   const [datalen, setDatalen] = useState(0);
   // console.log(datalen);
@@ -17,10 +17,11 @@ const GraphDemo = ({ classes }) => {
   const [prevScreenX, setPrevScreenX] = useState(null);
   const [isMovingRight, setIsMovingRight] = useState(false);
 
+  console.log(tickerName);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("./ITC.csv");
+        const response = await fetch("./data/" + tickerName + ".NS.csv");
         var csvData = await response.text();
         // console.log(csvData);
 
@@ -62,7 +63,7 @@ const GraphDemo = ({ classes }) => {
     };
 
     fetchData();
-  }, [startIdx, endIdx]);
+  }, [startIdx, endIdx, tickerName]);
 
   const parseDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };

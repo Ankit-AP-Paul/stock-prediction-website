@@ -17,7 +17,6 @@ const GraphDemo = ({ classes, tickerName }) => {
   const [prevScreenX, setPrevScreenX] = useState(null);
   const [isMovingRight, setIsMovingRight] = useState(false);
 
-  // console.log(tickerName);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -51,10 +50,10 @@ const GraphDemo = ({ classes, tickerName }) => {
                   y: Close,
                 }
             );
-
+            // console.log(dataArray);
             const data2 = [
               {
-                id: "ITC",
+                id: tickerName,
                 data: dataArray,
               },
             ];
@@ -75,13 +74,16 @@ const GraphDemo = ({ classes, tickerName }) => {
 
   const parseDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };
-    // Check if dateString is not null before splitting
+
     if (dateString) {
-      const parts = dateString.split("-");
-      return new Date(parts[2], parts[1] - 1, parts[0]).toLocaleDateString(
-        "en-US",
-        options
-      );
+      console.log(dateString);
+      const ds = new Date(dateString);
+      const formatted_date = ds.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+      return formatted_date;
     }
     // Return null or handle the case when dateString is null
     return null;

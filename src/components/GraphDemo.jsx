@@ -7,7 +7,15 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), {
   ssr: false,
 });
 
-const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
+const GraphDemo = ({
+  classes,
+  tickerName,
+  mode,
+  startDate,
+  grandfather,
+  father,
+  son,
+}) => {
   const date = new Date(startDate);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -31,6 +39,12 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
         var csvData = await response.text();
         const rows = csvData.split("\n");
 
+        // const [gf, f, s] = [
+        //   calMA(rows, grandfather),
+        //   calMA(rows, father),
+        //   calMA(rows, son),
+        // ];
+
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i].trim().split(",");
           const date = row[0];
@@ -42,11 +56,10 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
         let closeSum = 0;
         for (let i = endIdx; i >= endIdx - 50; i--) {
           const row = rows[i].trim().split(",");
-          const close = parseInt(row[4]);
+          const close = parseFloat(row[4]);
           closeSum = closeSum + close;
         }
         setAvg50(closeSum / 50);
-        console.log(avg50);
 
         if (endIdx - 15 >= 0) setStartIdx(endIdx - 15);
         else setStartIdx(0);
@@ -61,6 +74,7 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
                   y: Close,
                 }
             );
+
             const avg50array = result.data.slice(startIdx, endIdx).map(
               ({ Date, Close }) =>
                 Close && {
@@ -68,6 +82,28 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
                   y: avg50,
                 }
             );
+
+            const gf = calMA(rows, grandfather)
+              .slice(startIdx, endIdx)
+              .map(({ date, movingAverage }) => ({
+                x: parseDate(date),
+                y: movingAverage,
+              }));
+
+            const f = calMA(rows, father)
+              .slice(startIdx, endIdx)
+              .map(({ date, movingAverage }) => ({
+                x: parseDate(date),
+                y: movingAverage,
+              }));
+
+            const s = calMA(rows, son)
+              .slice(startIdx, endIdx)
+              .map(({ date, movingAverage }) => ({
+                x: parseDate(date),
+                y: movingAverage,
+              }));
+
             const data2 = [
               {
                 id: tickerName,
@@ -78,6 +114,21 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
                 id: "50 days Avg",
                 color: mode === "dark" ? "#DDFFF5" : "#04111A",
                 data: avg50array,
+              },
+              {
+                id: "Grandfather",
+                color: mode === "dark" ? "#DDFFF5" : "#04111A",
+                data: gf,
+              },
+              {
+                id: "Father",
+                color: mode === "dark" ? "#DDFFF5" : "#04111A",
+                data: f,
+              },
+              {
+                id: "Son",
+                color: mode === "dark" ? "#DDFFF5" : "#04111A",
+                data: s,
               },
             ];
             setData(data2);
@@ -90,10 +141,44 @@ const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
         console.error("Error fetching CSV:", error.message);
       }
     };
-
-    console.log(data);
     fetchData();
-  }, [startIdx, endIdx, tickerName, formattedDate, avg50]);
+  }, [
+    startIdx,
+    endIdx,
+    tickerName,
+    formattedDate,
+    avg50,
+    grandfather,
+    father,
+    son,
+  ]);
+
+  const calMA = (rows, n) => {
+    const data = rows.map((row) => {
+      const rowArray = row.trim().split(",");
+
+      return {
+        date: rowArray[0],
+        close: parseFloat(rowArray[4]),
+      };
+    });
+
+    const movingAverageData = [];
+
+    for (let i = 1; i < data.length; i++) {
+      if (i < n - 1) {
+        movingAverageData.push({ date: data[i].date, movingAverage: 0 });
+      } else {
+        const sum = data
+          .slice(i - n + 1, i + 1)
+          .reduce((acc, val) => acc + val.close, 0);
+        const average = sum / n;
+        movingAverageData.push({ date: data[i].date, movingAverage: average });
+      }
+    }
+
+    return movingAverageData;
+  };
 
   const parseDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };

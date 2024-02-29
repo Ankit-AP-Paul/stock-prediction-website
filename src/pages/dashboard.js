@@ -131,13 +131,50 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
   );
 };
 
+const GfsInput = ({ placeholder, setter }) => {
+  return (
+    <input
+      className="w-24 ml-5 text-xs placeholder:text-dark placeholder:opacity-60 text-center"
+      placeholder={placeholder}
+      onChange={setter}
+    />
+  );
+};
+
 const dashboard = ({ mode }) => {
   const [tickerRows, setTickerRows] = useState([]);
   const [activeTicker, setActiveTicker] = useState("");
+  const [grandfather, setGrandfather] = useState(200);
+  const [father, setFather] = useState(50);
+  const [son, setSon] = useState(10);
   // const [startDate, setStartDate] = useState(new Date());
   const [startDate, setStartDate] = useState(
     "Tue Jan 09 2024 12:51:46 GMT+0530 (India Standard Time)"
   );
+
+  const handleSetGF = (e) => {
+    const val = e.target.value;
+    if (val > 200) {
+      e.target.value = 200;
+      setGrandfather(200);
+    } else setGrandfather(val);
+  };
+
+  const handleSetF = (e) => {
+    const val = e.target.value;
+    if (val > 200) {
+      e.target.value = 200;
+      setFather(200);
+    } else setFather(val);
+  };
+
+  const handleSetS = (e) => {
+    const val = e.target.value;
+    if (val > 200) {
+      e.target.value = 200;
+      setSon(200);
+    } else setSon(val);
+  };
 
   useEffect(() => {
     const fetchTickers = async () => {
@@ -174,12 +211,23 @@ const dashboard = ({ mode }) => {
           </h2>
           <div className="grid grid-cols-8 gap-4">
             <div className="col-span-6">
-              <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-              />
+              <div className="w-full flex flex-row">
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
+                />
+                {/* <div className="dark:text-light text-dark ml-5">200</div>
+                <div className="dark:text-light text-dark ml-5">50</div>
+                <div className="dark:text-light text-dark ml-5">10</div> */}
+                <GfsInput placeholder="grandfather" setter={handleSetGF} />
+                <GfsInput placeholder="father" setter={handleSetF} />
+                <GfsInput placeholder="son" setter={handleSetS} />
+              </div>
               {activeTicker && (
                 <GraphDemo
+                  grandfather={grandfather}
+                  father={father}
+                  son={son}
                   startDate={startDate}
                   mode={mode}
                   classes="h-[500px] w-full"

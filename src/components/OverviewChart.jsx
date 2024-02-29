@@ -5,10 +5,6 @@ const OverviewChart = ({ data, themeCol }) => {
   // eslint-disable-line react-hooks/exhaustive-deps
   if (!data) return <div>Data not present</div>;
   else {
-    console.log(data);
-    // const maxY = Math.max(
-    //   ...data.flatMap((dataset) => dataset.data.map((point) => point.y))
-    // );
     return (
       <ResponsiveLine
         data={data}
@@ -48,8 +44,8 @@ const OverviewChart = ({ data, themeCol }) => {
         // colors={() => themeCol}
 
         colors={{ scheme: "category10" }}
-        margin={{ top: 50, right: 120, bottom: 80, left: 80 }}
-        xScale={{ type: "point", min: "auto", max: "auto" }}
+        margin={{ top: 50, right: 120, bottom: 60, left: 80 }}
+        xScale={{ type: "point" }}
         yScale={{
           type: "linear",
           min: "auto",
@@ -80,6 +76,9 @@ const OverviewChart = ({ data, themeCol }) => {
         }}
         enableGridX={false}
         enableGridY={false}
+        enableArea={true}
+        areaOpacity={0.1}
+        areaBaselineValue={0}
         pointSize={5}
         pointColor={{ theme: "background" }}
         pointBorderWidth={2}

@@ -4,7 +4,11 @@ import React from "react";
 const OverviewChart = ({ data, themeCol }) => {
   // eslint-disable-line react-hooks/exhaustive-deps
   if (!data) return <div>Data not present</div>;
-  else
+  else {
+    console.log(data);
+    // const maxY = Math.max(
+    //   ...data.flatMap((dataset) => dataset.data.map((point) => point.y))
+    // );
     return (
       <ResponsiveLine
         data={data}
@@ -41,14 +45,16 @@ const OverviewChart = ({ data, themeCol }) => {
             },
           },
         }}
-        colors={() => themeCol}
-        margin={{ top: 50, right: 80, bottom: 80, left: 80 }}
-        xScale={{ type: "point" }}
+        // colors={() => themeCol}
+
+        colors={{ scheme: "category10" }}
+        margin={{ top: 50, right: 120, bottom: 80, left: 80 }}
+        xScale={{ type: "point", min: "auto", max: "auto" }}
         yScale={{
           type: "linear",
           min: "auto",
           max: "auto",
-          stacked: true,
+          stacked: false,
           reverse: false,
         }}
         yFormat=" >-.2f"
@@ -81,37 +87,35 @@ const OverviewChart = ({ data, themeCol }) => {
         pointLabelYOffset={-12}
         useMesh={true}
         // animate={false}
-        legends={
-          undefined
-          //   [
-          //   {
-          //     anchor: "bottom-right",
-          //     direction: "column",
-          //     justify: false,
-          //     translateX: 100,
-          //     translateY: 0,
-          //     itemsSpacing: 0,
-          //     itemDirection: "left-to-right",
-          //     itemWidth: 80,
-          //     itemHeight: 20,
-          //     itemOpacity: 0.75,
-          //     symbolSize: 12,
-          //     symbolShape: "circle",
-          //     symbolBorderColor: "rgba(0, 0, 0, .5)",
-          //     effects: [
-          //       {
-          //         on: "hover",
-          //         style: {
-          //           itemBackground: "rgba(0, 0, 0, .03)",
-          //           itemOpacity: 1,
-          //         },
-          //       },
-          //     ],
-          //   },
-          // ]
-        }
+        legends={[
+          {
+            anchor: "bottom-right",
+            direction: "column",
+            justify: false,
+            translateX: 100,
+            translateY: 0,
+            itemsSpacing: 0,
+            itemDirection: "left-to-right",
+            itemWidth: 80,
+            itemHeight: 20,
+            itemOpacity: 0.75,
+            symbolSize: 12,
+            symbolShape: "circle",
+            symbolBorderColor: "rgba(0, 0, 0, .5)",
+            effects: [
+              {
+                on: "hover",
+                style: {
+                  itemBackground: "rgba(0, 0, 0, .03)",
+                  itemOpacity: 1,
+                },
+              },
+            ],
+          },
+        ]}
       />
     );
+  }
 };
 
 export default OverviewChart;

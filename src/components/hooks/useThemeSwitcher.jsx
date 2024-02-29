@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 const useThemeSwitcher = () => {
   const preferDarkQuery = "(prefer-color-scheme: dark)";
-  const [mode, setMode] = useState("");
+  const [mode, setMode] = useState("dark");
 
   useEffect(() => {
     //     Create a mediaQuery variable that uses window.matchMedia to check if the user's system prefers a dark color scheme.

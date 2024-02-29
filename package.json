@@ -21,6 +21,7 @@
     "papaparse": "^5.4.1",
     "react": "^18",
     "react-d3-library": "^1.1.8",
+    "react-datepicker": "^6.2.0",
     "react-dom": "^18",
     "resize-observer-polyfill": "^1.5.1"
   },

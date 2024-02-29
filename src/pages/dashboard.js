@@ -3,6 +3,10 @@ import Head from "next/head";
 import Layout from "@/components/Layout";
 import GraphDemo from "@/components/GraphDemo";
 
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 const tickers = [
   "TATAMOTORS.NS",
   "MARUTI.NS",
@@ -130,7 +134,10 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
 const dashboard = ({ mode }) => {
   const [tickerRows, setTickerRows] = useState([]);
   const [activeTicker, setActiveTicker] = useState("");
-  // console.log(tickerRows);
+  // const [startDate, setStartDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(
+    "Tue Jan 09 2024 12:51:46 GMT+0530 (India Standard Time)"
+  );
 
   useEffect(() => {
     const fetchTickers = async () => {
@@ -144,9 +151,7 @@ const dashboard = ({ mode }) => {
         rows.map((row) => {
           row = row.replace(".NS", "");
           tr.push(row);
-          // console.log(row);
         });
-        // Update state with the array of rows
         setTickerRows(tr);
       } catch (error) {
         console.error("Error fetching tickers:", error.message);
@@ -168,20 +173,25 @@ const dashboard = ({ mode }) => {
             DASHBOARD
           </h2>
           <div className="grid grid-cols-8 gap-4">
-            <CompanyList
-              tickerList={tickerRows}
-              setActiveTicker={setActiveTicker}
-              activeTicker={activeTicker}
-            />
             <div className="col-span-6">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+              />
               {activeTicker && (
                 <GraphDemo
+                  startDate={startDate}
                   mode={mode}
                   classes="h-[500px] w-full"
                   tickerName={activeTicker}
                 />
               )}
             </div>
+            <CompanyList
+              tickerList={tickerRows}
+              setActiveTicker={setActiveTicker}
+              activeTicker={activeTicker}
+            />
           </div>
         </Layout>
       </div>

@@ -7,38 +7,49 @@ const OverviewChart = dynamic(() => import("./OverviewChart"), {
   ssr: false,
 });
 
-const GraphDemo = ({ classes, tickerName, mode }) => {
+const GraphDemo = ({ classes, tickerName, mode, startDate }) => {
+  const date = new Date(startDate);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const formattedDate = `${year}-${month}-${day}`;
+
   const [data, setData] = useState([]);
-  const [datalen, setDatalen] = useState(0);
-  // console.log(datalen);
+  const [avg50, setAvg50] = useState(0);
   const [startIdx, setStartIdx] = useState(0);
-  const [endIdx, setEndIdx] = useState(15);
-  const [isDragging, setIsDragging] = useState(false);
-  const [prevScreenX, setPrevScreenX] = useState(null);
-  const [isMovingRight, setIsMovingRight] = useState(false);
+  const [endIdx, setEndIdx] = useState(0);
+  // const [isDragging, setIsDragging] = useState(false);
+  // const [prevScreenX, setPrevScreenX] = useState(null);
+  // const [isMovingRight, setIsMovingRight] = useState(false);
+
+  // Formatting date
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("./data/" + tickerName + ".NS.csv");
         var csvData = await response.text();
-
         const rows = csvData.split("\n");
-        setDatalen(rows.length - 1);
-        const header = rows[0];
-        const reversedRows = [header, ...rows.slice(1).reverse()];
-        var date_close = [];
-        reversedRows.map((row) => {
-          const cols = row.split(",");
-          if (cols[0] && cols[4]) {
-            // console.log(cols[0] + "," + cols[4]);
-            date_close.push(cols[0] + "," + cols[4]);
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i].trim().split(",");
+          const date = row[0];
+          if (date === formattedDate) {
+            setEndIdx(i);
+            break;
           }
-        });
+        }
+        let closeSum = 0;
+        for (let i = endIdx; i >= endIdx - 50; i--) {
+          const row = rows[i].trim().split(",");
+          const close = parseInt(row[4]);
+          closeSum = closeSum + close;
+        }
+        setAvg50(closeSum / 50);
+        console.log(avg50);
 
-        // Join the reversed rows back into CSV data
-        csvData = date_close.join("\n");
-
+        if (endIdx - 15 >= 0) setStartIdx(endIdx - 15);
+        else setStartIdx(0);
         Papa.parse(csvData, {
           header: true,
           dynamicTyping: true,
@@ -50,14 +61,25 @@ const GraphDemo = ({ classes, tickerName, mode }) => {
                   y: Close,
                 }
             );
-            // console.log(dataArray);
+            const avg50array = result.data.slice(startIdx, endIdx).map(
+              ({ Date, Close }) =>
+                Close && {
+                  x: parseDate(Date),
+                  y: avg50,
+                }
+            );
             const data2 = [
               {
                 id: tickerName,
+                color: mode === "dark" ? "#DDFFF5" : "#04111A",
                 data: dataArray,
               },
+              {
+                id: "50 days Avg",
+                color: mode === "dark" ? "#DDFFF5" : "#04111A",
+                data: avg50array,
+              },
             ];
-
             setData(data2);
           },
           error: function (error) {
@@ -69,14 +91,14 @@ const GraphDemo = ({ classes, tickerName, mode }) => {
       }
     };
 
+    console.log(data);
     fetchData();
-  }, [startIdx, endIdx, tickerName]);
+  }, [startIdx, endIdx, tickerName, formattedDate, avg50]);
 
   const parseDate = (dateString) => {
     const options = { day: "numeric", month: "short", year: "numeric" };
 
     if (dateString) {
-      console.log(dateString);
       const ds = new Date(dateString);
       const formatted_date = ds.toLocaleDateString("en-US", {
         month: "short",
@@ -85,57 +107,59 @@ const GraphDemo = ({ classes, tickerName, mode }) => {
       });
       return formatted_date;
     }
-    // Return null or handle the case when dateString is null
+
     return null;
   };
 
-  const handleWheel = (e) => {
-    // Increase or decrease the number of rows based on scroll direction
-    const delta = e.deltaY;
-    const step = delta > 0 ? 1 : -1;
-    // console.log(startIdx);
-    if (startIdx == 0) {
-      if (step == -1 && endIdx <= 20 && endIdx >= 6) setEndIdx(endIdx - 1);
-      if (step == 1 && endIdx < 20 && endIdx >= 5) setEndIdx(endIdx + 1);
-    }
-    if (startIdx > 0) {
-      if (step == -1 && endIdx - startIdx >= 6) {
-        setEndIdx(endIdx - 1);
-        setStartIdx(startIdx + 1);
-      }
-      if (step == 1 && endIdx - startIdx <= 20) {
-        setEndIdx(endIdx + 1);
-        setStartIdx(startIdx - 1);
-      }
-      // step == 1 && setEndIdx(endIdx + 1) && setStartIdx(startIdx + 1);
-    }
+  // const handleWheel = (e) => {
+  //   // Increase or decrease the number of rows based on scroll direction
+  //   const delta = e.deltaY;
+  //   const step = delta > 0 ? 1 : -1;
+  //   // console.log(startIdx);
+  //   if (startIdx == 0) {
+  //     if (step == -1 && endIdx <= 20 && endIdx >= 6) setEndIdx(endIdx - 1);
+  //     if (step == 1 && endIdx < 20 && endIdx >= 5) setEndIdx(endIdx + 1);
+  //   }
+  //   if (startIdx > 0) {
+  //     if (step == -1 && endIdx - startIdx >= 6) {
+  //       setEndIdx(endIdx - 1);
+  //       setStartIdx(startIdx + 1);
+  //     }
+  //     if (step == 1 && endIdx - startIdx <= 20) {
+  //       setEndIdx(endIdx + 1);
+  //       setStartIdx(startIdx - 1);
+  //     }
+  //     // step == 1 && setEndIdx(endIdx + 1) && setStartIdx(startIdx + 1);
+  //   }
+  //   if (endIdx == datalen - 1) {
+  //     if (step == -1 && endIdx - startIdx <= 15) setEndIdx(startIdx + 1);
+  //     if (step == 1 && endIdx - startIdx >= 5) setEndIdx(startIdx - 1);
+  //   }
 
-    // startIdx + step >= 0 && setStartIdx(startIdx + step);
-    // endIdx + step >= 5 && setEndIdx(endIdx + step);
-  };
+  //   // startIdx + step >= 0 && setStartIdx(startIdx + step);
+  //   // endIdx + step >= 5 && setEndIdx(endIdx + step);
+  // };
 
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setPrevScreenX(e.screenX);
-  };
+  // const handleMouseDown = (e) => {
+  //   // setIsDragging(true);
+  //   setPrevScreenX(e.screenX);
+  // };
 
-  const handleMouseMove = (e) => {
-    if (isDragging) {
-      const delta = e.screenX - prevScreenX;
-      setPrevScreenX(e.screenX);
-      delta >= 0 ? setIsMovingRight(true) : setIsMovingRight(false);
-      // console.log(startIdx, endIdx);
-      console.log(datalen);
-
-      if (!isMovingRight) {
-        startIdx + 1 <= datalen - 20 && setStartIdx(startIdx + 1);
-        endIdx + 1 <= datalen - 1 && setEndIdx(endIdx + 1);
-      } else {
-        startIdx - 1 >= 0 && setStartIdx(startIdx - 1);
-        endIdx - 1 >= 20 && setEndIdx(endIdx - 1);
-      }
-    }
-  };
+  // const handleMouseMove = (e) => {
+  //   if (isDragging) {
+  //     const delta = e.screenX - prevScreenX;
+  //     setPrevScreenX(e.screenX);
+  //     delta >= 0 ? setIsMovingRight(true) : setIsMovingRight(false);
+  //     // console.log(isMovingRight);
+  //     if (!isMovingRight) {
+  //       startIdx + 1 <= datalen - 20 && setStartIdx(startIdx + 1);
+  //       endIdx + 1 <= datalen - 1 && setEndIdx(endIdx + 1);
+  //     } else {
+  //       startIdx - 1 >= 0 && setStartIdx(startIdx - 1);
+  //       endIdx - 1 >= 20 && setEndIdx(endIdx - 1);
+  //     }
+  //   }
+  // };
 
   const handleMouseOut = () => {
     setIsDragging(false);
@@ -145,19 +169,20 @@ const GraphDemo = ({ classes, tickerName, mode }) => {
     setIsDragging(false);
     setPrevScreenX(null);
   };
+
   return (
     <div
-      onWheel={handleWheel}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseOut={handleMouseOut}
-      className={`bg-dark bg-opacity-10 rounded-xl cursor-default  ${classes}`}
+      // onWheel={handleWheel}
+      // onMouseDown={handleMouseDown}
+      // onMouseMove={handleMouseMove}
+      // onMouseUp={handleMouseUp}
+      // onMouseOut={handleMouseOut}
+      className={`bg-dark bg-opacity-10 pr-5 rounded-xl cursor-default  ${classes}`}
       style={{ overflow: "hidden", userSelect: "none" }}
     >
       <OverviewChart
         data={data}
-        themeCol={mode === "light" ? "#20818C" : "#DDFFF5"}
+        themeCol={mode === "dark" ? "#DDFFF5" : "#04111A"}
       />
     </div>
   );

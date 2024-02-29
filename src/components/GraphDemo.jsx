@@ -39,12 +39,6 @@ const GraphDemo = ({
         var csvData = await response.text();
         const rows = csvData.split("\n");
 
-        // const [gf, f, s] = [
-        //   calMA(rows, grandfather),
-        //   calMA(rows, father),
-        //   calMA(rows, son),
-        // ];
-
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i].trim().split(",");
           const date = row[0];
@@ -154,6 +148,7 @@ const GraphDemo = ({
   ]);
 
   const calMA = (rows, n) => {
+    if (n === 0) return undefined;
     const data = rows.map((row) => {
       const rowArray = row.trim().split(",");
 
@@ -268,6 +263,7 @@ const GraphDemo = ({
       <OverviewChart
         data={data}
         themeCol={mode === "dark" ? "#DDFFF5" : "#04111A"}
+        gridCol={mode === "dark" ? "#ddfff578" : "#04111a7a"}
       />
     </div>
   );

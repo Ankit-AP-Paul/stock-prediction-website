@@ -1,7 +1,7 @@
 import { ResponsiveLine } from "@nivo/line";
 import React from "react";
 
-const OverviewChart = ({ data, themeCol }) => {
+const OverviewChart = ({ data, themeCol, gridCol }) => {
   // eslint-disable-line react-hooks/exhaustive-deps
   if (!data) return <div>Data not present</div>;
   else {
@@ -30,6 +30,13 @@ const OverviewChart = ({ data, themeCol }) => {
               },
             },
           },
+          grid: {
+            line: {
+              stroke: gridCol,
+              strokeWidth: 1,
+              strokeDasharray: "4 4",
+            },
+          },
           legends: {
             text: {
               fill: themeCol,
@@ -44,7 +51,7 @@ const OverviewChart = ({ data, themeCol }) => {
         // colors={() => themeCol}
 
         colors={{ scheme: "category10" }}
-        margin={{ top: 50, right: 120, bottom: 60, left: 80 }}
+        margin={{ top: 50, right: 10, bottom: 100, left: 80 }}
         xScale={{ type: "point" }}
         yScale={{
           type: "linear",
@@ -60,7 +67,7 @@ const OverviewChart = ({ data, themeCol }) => {
         axisBottom={{
           tickSize: 5,
           tickPadding: 5,
-          tickRotation: -45,
+          tickRotation: -35,
           legend: "",
           legendOffset: 36,
           legendPosition: "middle",
@@ -74,11 +81,11 @@ const OverviewChart = ({ data, themeCol }) => {
           legendOffset: -40,
           legendPosition: "middle",
         }}
-        enableGridX={false}
-        enableGridY={false}
-        enableArea={true}
+        enableGridX={true}
+        enableGridY={true}
+        enableArea={false}
         areaOpacity={0.1}
-        areaBaselineValue={0}
+        areaBaselineValue={200}
         pointSize={5}
         pointColor={{ theme: "background" }}
         pointBorderWidth={2}
@@ -88,14 +95,14 @@ const OverviewChart = ({ data, themeCol }) => {
         // animate={false}
         legends={[
           {
-            anchor: "bottom-right",
-            direction: "column",
+            anchor: "bottom-left",
+            direction: "row",
             justify: false,
             translateX: 100,
-            translateY: 0,
+            translateY: 82,
             itemsSpacing: 0,
             itemDirection: "left-to-right",
-            itemWidth: 80,
+            itemWidth: 100,
             itemHeight: 20,
             itemOpacity: 0.75,
             symbolSize: 12,

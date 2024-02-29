@@ -103,7 +103,7 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
       <div class="text-xs row-span-2 text-light uppercase bg-alt dark:bg-secDark rounded-t-xl shadow-xl h-20 flex flex-row items-center">
         <h3 class=" text-xl px-6 dark:text-light">Company</h3>
       </div>
-      <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[420px]">
+      <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[460px]">
         <table class="w-full text-sm text-left rtl:text-right">
           <tbody className="overflow-y-scroll">
             {tickerList.map((item) => {
@@ -157,23 +157,25 @@ const dashboard = ({ mode }) => {
     if (val > 200) {
       e.target.value = 200;
       setGrandfather(200);
-    } else setGrandfather(val);
+    } else if (val > 0) setGrandfather(val);
   };
 
   const handleSetF = (e) => {
     const val = e.target.value;
+
     if (val > 200) {
       e.target.value = 200;
       setFather(200);
-    } else setFather(val);
+    } else if (val > 0) setFather(val);
   };
 
   const handleSetS = (e) => {
     const val = e.target.value;
+
     if (val > 200) {
       e.target.value = 200;
       setSon(200);
-    } else setSon(val);
+    } else if (val > 0) setSon(val);
   };
 
   useEffect(() => {
@@ -219,9 +221,9 @@ const dashboard = ({ mode }) => {
                 {/* <div className="dark:text-light text-dark ml-5">200</div>
                 <div className="dark:text-light text-dark ml-5">50</div>
                 <div className="dark:text-light text-dark ml-5">10</div> */}
-                <GfsInput placeholder="grandfather" setter={handleSetGF} />
-                <GfsInput placeholder="father" setter={handleSetF} />
-                <GfsInput placeholder="son" setter={handleSetS} />
+                <GfsInput placeholder={grandfather} setter={handleSetGF} />
+                <GfsInput placeholder={father} setter={handleSetF} />
+                <GfsInput placeholder={son} setter={handleSetS} />
               </div>
               {activeTicker && (
                 <GraphDemo
@@ -230,7 +232,7 @@ const dashboard = ({ mode }) => {
                   son={son}
                   startDate={startDate}
                   mode={mode}
-                  classes="h-[500px] w-full"
+                  classes="h-[520px] w-full"
                   tickerName={activeTicker}
                 />
               )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import Layout from "@/components/Layout";
 import GraphDemo from "@/components/GraphDemo";
-
+import ReactDom from "react-dom";
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -103,7 +103,7 @@ const CompanyList = ({ tickerList, setActiveTicker, activeTicker }) => {
       <div class="text-xs row-span-2 text-light uppercase bg-alt dark:bg-secDark rounded-t-xl shadow-xl h-20 flex flex-row items-center">
         <h3 class=" text-xl px-6 dark:text-light">Company</h3>
       </div>
-      <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[460px]">
+      <div class="relative overflow-x-auto  sm:rounded-lg  rounded-b-xl shadow-xl h-[400px]">
         <table class="w-full text-sm text-left rtl:text-right">
           <tbody className="overflow-y-scroll">
             {tickerList.map((item) => {
@@ -142,6 +142,7 @@ const GfsInput = ({ placeholder, setter }) => {
 };
 
 const dashboard = ({ mode }) => {
+  const [chart, setChart] = useState(1);
   const [tickerRows, setTickerRows] = useState([]);
   const [activeTicker, setActiveTicker] = useState("");
   const [grandfather, setGrandfather] = useState(200);
@@ -221,27 +222,43 @@ const dashboard = ({ mode }) => {
                 {/* <div className="dark:text-light text-dark ml-5">200</div>
                 <div className="dark:text-light text-dark ml-5">50</div>
                 <div className="dark:text-light text-dark ml-5">10</div> */}
-                <GfsInput placeholder={grandfather} setter={handleSetGF} />
-                <GfsInput placeholder={father} setter={handleSetF} />
-                <GfsInput placeholder={son} setter={handleSetS} />
+                {chart === 1 && (
+                  <GfsInput placeholder={grandfather} setter={handleSetGF} />
+                )}
+                {chart === 1 && (
+                  <GfsInput placeholder={father} setter={handleSetF} />
+                )}
+                {chart === 1 && (
+                  <GfsInput placeholder={son} setter={handleSetS} />
+                )}
               </div>
-              {activeTicker && (
-                <GraphDemo
-                  grandfather={grandfather}
-                  father={father}
-                  son={son}
-                  startDate={startDate}
-                  mode={mode}
-                  classes="h-[520px] w-full"
-                  tickerName={activeTicker}
-                />
-              )}
+
+              <GraphDemo
+                chart={chart}
+                grandfather={grandfather}
+                father={father}
+                son={son}
+                startDate={startDate}
+                mode={mode}
+                classes="h-[520px] w-full"
+                tickerName={activeTicker}
+              />
             </div>
-            <CompanyList
-              tickerList={tickerRows}
-              setActiveTicker={setActiveTicker}
-              activeTicker={activeTicker}
-            />
+            <div className="flex flex-col col-span-2">
+              <button
+                onClick={() => {
+                  chart === 1 ? setChart(2) : setChart(1);
+                }}
+                className="border-solid border-acc1 dark:border-acc2 mb-5 rounded-lg py-2 font-bold text-light dark:text-light bg-acc1 dark:bg-acc2 hover:bg-acc2 dark:hover:bg-acc1"
+              >
+                {chart === 1 ? "Line Chart" : "Candle Stick"}
+              </button>
+              <CompanyList
+                tickerList={tickerRows}
+                setActiveTicker={setActiveTicker}
+                activeTicker={activeTicker}
+              />
+            </div>
           </div>
         </Layout>
       </div>

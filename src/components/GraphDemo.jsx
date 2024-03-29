@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { ReactDOM } from "react-dom";
+import { render } from "react-dom";
 import Papa from "papaparse";
-// import OverviewChart from "./OverviewChart";
 import dynamic from "next/dynamic";
 
-const OverviewChart = dynamic(() => import("./OverviewChart"), {
+const LineChart = dynamic(() => import("./LineChart"), {
   ssr: false,
 });
-
+const CandleStick = dynamic(() => import("./CandleStick"), {
+  ssr: false,
+});
 const GraphDemo = ({
+  chart,
   classes,
   tickerName,
   mode,
@@ -23,12 +27,10 @@ const GraphDemo = ({
   const formattedDate = `${year}-${month}-${day}`;
 
   const [data, setData] = useState([]);
+  const [dataCS, setDataCS] = useState([]);
   const [avg50, setAvg50] = useState(0);
   const [startIdx, setStartIdx] = useState(0);
   const [endIdx, setEndIdx] = useState(0);
-  // const [isDragging, setIsDragging] = useState(false);
-  // const [prevScreenX, setPrevScreenX] = useState(null);
-  // const [isMovingRight, setIsMovingRight] = useState(false);
 
   // Formatting date
 
@@ -38,12 +40,13 @@ const GraphDemo = ({
         const response = await fetch("./data/" + tickerName + ".NS.csv");
         var csvData = await response.text();
         const rows = csvData.split("\n");
-
+        console.log(startIdx, endIdx);
         for (let i = 0; i < rows.length; i++) {
           const row = rows[i].trim().split(",");
           const date = row[0];
           if (date === formattedDate) {
             setEndIdx(i);
+            setStartIdx(i - 15);
             break;
           }
         }
@@ -68,6 +71,25 @@ const GraphDemo = ({
                   y: Close,
                 }
             );
+
+            const dataArrayCS = result.data.slice(startIdx, endIdx).map(
+              ({ Date, Open, High, Low, Close }) =>
+                Open &&
+                High &&
+                Low &&
+                Close && {
+                  x: parseDate(Date),
+                  y: [
+                    Open.toFixed(2),
+                    High.toFixed(2),
+                    Low.toFixed(2),
+                    Close.toFixed(2),
+                  ],
+                }
+            );
+
+            // console.log(dataArrayCS);
+            setDataCS(dataArrayCS);
 
             const avg50array = result.data.slice(startIdx, endIdx).map(
               ({ Date, Close }) =>
@@ -126,6 +148,8 @@ const GraphDemo = ({
               },
             ];
             setData(data2);
+            // console.log(dataCS[1].y[0]);
+            // console.log(data);
           },
           error: function (error) {
             console.error("Error parsing CSV:", error.message);
@@ -257,14 +281,14 @@ const GraphDemo = ({
       // onMouseMove={handleMouseMove}
       // onMouseUp={handleMouseUp}
       // onMouseOut={handleMouseOut}
-      className={`bg-dark bg-opacity-10 pr-5 rounded-xl cursor-default  ${classes}`}
+      className={`bg-dark dark:bg-light bg-opacity-10 dark:bg-opacity-10 pr-5 rounded-xl cursor-default  ${classes}`}
       style={{ overflow: "hidden", userSelect: "none" }}
     >
-      <OverviewChart
-        data={data}
-        themeCol={mode === "dark" ? "#DDFFF5" : "#04111A"}
-        gridCol={mode === "dark" ? "#ddfff578" : "#04111a7a"}
-      />
+      {chart === 1 ? (
+        data && <LineChart mode={mode} width="100%" height="100%" data={data} />
+      ) : (
+        <CandleStick mode={mode} width="100%" height="100%" data={dataCS} />
+      )}
     </div>
   );
 };

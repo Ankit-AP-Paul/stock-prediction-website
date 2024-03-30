@@ -76,7 +76,7 @@ const LineChart = ({ mode, data }) => {
       },
     },
     xaxis: {
-      type: "datetime",
+      type: "String",
     },
     tooltip: {
       shared: false,

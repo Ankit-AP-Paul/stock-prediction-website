@@ -84,13 +84,30 @@ const GraphDemo = ({
           const high = parseFloat(row.High);
           const low = parseFloat(row.Low);
           const date = parseDate(row.Date);
-
           !!close &&
             dataArray.push({
               x: date,
               y: close,
             });
 
+          !!grandfather &&
+            gf.push({
+              x: calMA2(timeSeries, grandfather)[i].date,
+              y: calMA2(timeSeries, grandfather)[i].movingAverage,
+            });
+          !!father &&
+            f.push({
+              x: calMA2(timeSeries, father)[i].date,
+              y: calMA2(timeSeries, father)[i].movingAverage,
+            });
+          !!son &&
+            s.push({
+              x: calMA2(timeSeries, son)[i].date,
+              y: calMA2(timeSeries, son)[i].movingAverage,
+            });
+          // f.push(calMA2(timeSeries, father));
+          // s.push(calMA2(timeSeries, son));
+          // console.log(calMA2(timeSeries, 200)[i]);
           open &&
             high &&
             low &&
@@ -147,157 +164,16 @@ const GraphDemo = ({
     son,
   ]);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch("./data/" + tickerName + ".NS.csv");
-  //       var csvData = await response.text();
-  //       const rows = csvData.split("\n");
+  const calMA2 = (rows, n) => {
+    // console.log(rows, n);
+    if (n === 0 || !n) return undefined;
 
-  //       for (let i = 0; i < rows.length; i++) {
-  //         const row = rows[i].trim().split(",");
-  //         const date = row[0];
-  //         if (date === formattedDate) {
-  //           setEndIdx(i);
-  //           setStartIdx(i - 15);
-  //           break;
-  //         }
-  //       }
-  //       let closeSum = 0;
-  //       for (let i = endIdx; i >= endIdx - 50; i--) {
-  //         const row = rows[i].trim().split(",");
-  //         const close = parseFloat(row[4]);
-  //         closeSum = closeSum + close;
-  //       }
-  //       setAvg50(closeSum / 50);
-
-  //       console.log(tickerName, avg50);
-
-  //       if (endIdx - 15 >= 0) setStartIdx(endIdx - 15);
-  //       else setStartIdx(0);
-
-  //       Papa.parse(csvData, {
-  //         header: true,
-  //         dynamicTyping: true,
-  //         complete: function (result) {
-  //           const dataArray = result.data.slice(startIdx, endIdx).map(
-  //             ({ Date, Close }) =>
-  //               Close && {
-  //                 x: parseDate(Date),
-  //                 y: Close,
-  //               }
-  //           );
-  //           // console.log(dataArray);
-  //           const dataArrayCS = result.data.slice(startIdx, endIdx).map(
-  //             ({ Date, Open, High, Low, Close }) =>
-  //               Open &&
-  //               High &&
-  //               Low &&
-  //               Close && {
-  //                 x: parseDate(Date),
-  //                 y: [
-  //                   Open.toFixed(2),
-  //                   High.toFixed(2),
-  //                   Low.toFixed(2),
-  //                   Close.toFixed(2),
-  //                 ],
-  //               }
-  //           );
-
-  //           // console.log(dataArrayCS);
-  //           setDataCS(dataArrayCS);
-
-  //           const avg50array = result.data.slice(startIdx, endIdx).map(
-  //             ({ Date, Close }) =>
-  //               Close && {
-  //                 x: parseDate(Date),
-  //                 y: avg50,
-  //               }
-  //           );
-
-  //           const gf = calMA(rows, grandfather)
-  //             .slice(startIdx, endIdx)
-  //             .map(({ date, movingAverage }) => ({
-  //               x: parseDate(date),
-  //               y: movingAverage,
-  //             }));
-
-  //           const f = calMA(rows, father)
-  //             .slice(startIdx, endIdx)
-  //             .map(({ date, movingAverage }) => ({
-  //               x: parseDate(date),
-  //               y: movingAverage,
-  //             }));
-
-  //           const s = calMA(rows, son)
-  //             .slice(startIdx, endIdx)
-  //             .map(({ date, movingAverage }) => ({
-  //               x: parseDate(date),
-  //               y: movingAverage,
-  //             }));
-
-  //           const data2 = [
-  //             {
-  //               id: tickerName,
-  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
-  //               data: dataArray,
-  //             },
-  //             {
-  //               id: "50 days Avg",
-  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
-  //               data: avg50array,
-  //             },
-  //             {
-  //               id: "Grandfather",
-  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
-  //               data: gf,
-  //             },
-  //             {
-  //               id: "Father",
-  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
-  //               data: f,
-  //             },
-  //             {
-  //               id: "Son",
-  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
-  //               data: s,
-  //             },
-  //           ];
-  //           setData(data2);
-  //           // console.log(dataCS[1].y[0]);
-  //           // console.log(data);
-  //         },
-  //         error: function (error) {
-  //           console.error("Error parsing CSV:", error.message);
-  //         },
-  //       });
-  //     } catch (error) {
-  //       console.error("Error fetching CSV:", error.message);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [
-  //   startIdx,
-  //   endIdx,
-  //   tickerName,
-  //   formattedDate,
-  //   avg50,
-  //   grandfather,
-  //   father,
-  //   son,
-  // ]);
-
-  const calMA = (rows, n) => {
-    if (n === 0) return undefined;
     const data = rows.map((row) => {
-      const rowArray = row.trim().split(",");
-
       return {
-        date: rowArray[0],
-        close: parseFloat(rowArray[4]),
+        date: row.Date,
+        close: parseFloat(row.Close),
       };
     });
-
     const movingAverageData = [];
 
     for (let i = 1; i < data.length; i++) {

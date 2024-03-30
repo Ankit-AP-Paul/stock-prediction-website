@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { ReactDOM } from "react-dom";
-import { render } from "react-dom";
 import Papa from "papaparse";
 import dynamic from "next/dynamic";
-
+import { fetchDataFromApi } from "./util/api";
 const LineChart = dynamic(() => import("./LineChart"), {
   ssr: false,
 });
 const CandleStick = dynamic(() => import("./CandleStick"), {
   ssr: false,
 });
+
 const GraphDemo = ({
   chart,
   classes,
@@ -31,132 +30,109 @@ const GraphDemo = ({
   const [avg50, setAvg50] = useState(0);
   const [startIdx, setStartIdx] = useState(0);
   const [endIdx, setEndIdx] = useState(0);
+  // const [timeSeries, setTimeSeries] = useState([]);
 
+  const makeApiCall = async (ticker) => {
+    const res = await fetchDataFromApi(ticker);
+    // console.log(res);
+    // setTimeSeries(res);
+    // console.log(timeSeries);
+    return res;
+  };
   // Formatting date
 
   useEffect(() => {
+    // console.log(tickerName);
     const fetchData = async () => {
       try {
-        const response = await fetch("./data/" + tickerName + ".NS.csv");
-        var csvData = await response.text();
-        const rows = csvData.split("\n");
-        console.log(startIdx, endIdx);
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i].trim().split(",");
-          const date = row[0];
+        const timeSeries =
+          !!tickerName && (await makeApiCall(tickerName + ".NS"));
+        for (let i = 0; i < timeSeries.length; i++) {
+          const row = timeSeries[i];
+          // console.log(row);
+          // console.log(row);
+          const date = row.Date;
           if (date === formattedDate) {
             setEndIdx(i);
             setStartIdx(i - 15);
             break;
           }
         }
+
         let closeSum = 0;
         for (let i = endIdx; i >= endIdx - 50; i--) {
-          const row = rows[i].trim().split(",");
-          const close = parseFloat(row[4]);
+          const row = timeSeries[i];
+          const close = parseFloat(row.Close);
           closeSum = closeSum + close;
         }
         setAvg50(closeSum / 50);
 
         if (endIdx - 15 >= 0) setStartIdx(endIdx - 15);
         else setStartIdx(0);
-        Papa.parse(csvData, {
-          header: true,
-          dynamicTyping: true,
-          complete: function (result) {
-            const dataArray = result.data.slice(startIdx, endIdx).map(
-              ({ Date, Close }) =>
-                Close && {
-                  x: parseDate(Date),
-                  y: Close,
-                }
-            );
 
-            const dataArrayCS = result.data.slice(startIdx, endIdx).map(
-              ({ Date, Open, High, Low, Close }) =>
-                Open &&
-                High &&
-                Low &&
-                Close && {
-                  x: parseDate(Date),
-                  y: [
-                    Open.toFixed(2),
-                    High.toFixed(2),
-                    Low.toFixed(2),
-                    Close.toFixed(2),
-                  ],
-                }
-            );
+        let dataArray = [];
+        let dataArrayCS = [];
+        let avg50array = [];
+        let gf = [];
+        let f = [];
+        let s = [];
 
-            // console.log(dataArrayCS);
-            setDataCS(dataArrayCS);
+        for (let i = startIdx; i <= endIdx; i++) {
+          const row = timeSeries[i];
+          const close = parseFloat(row.Close);
+          const open = parseFloat(row.Open);
+          const high = parseFloat(row.High);
+          const low = parseFloat(row.Low);
+          const date = parseDate(row.Date);
 
-            const avg50array = result.data.slice(startIdx, endIdx).map(
-              ({ Date, Close }) =>
-                Close && {
-                  x: parseDate(Date),
-                  y: avg50,
-                }
-            );
+          !!close &&
+            dataArray.push({
+              x: date,
+              y: close,
+            });
 
-            const gf = calMA(rows, grandfather)
-              .slice(startIdx, endIdx)
-              .map(({ date, movingAverage }) => ({
-                x: parseDate(date),
-                y: movingAverage,
-              }));
+          open &&
+            high &&
+            low &&
+            close &&
+            dataArrayCS.push({
+              x: date,
+              y: [
+                open.toFixed(2),
+                high.toFixed(2),
+                low.toFixed(2),
+                close.toFixed(2),
+              ],
+            });
 
-            const f = calMA(rows, father)
-              .slice(startIdx, endIdx)
-              .map(({ date, movingAverage }) => ({
-                x: parseDate(date),
-                y: movingAverage,
-              }));
+          setDataCS(dataArrayCS);
+        }
 
-            const s = calMA(rows, son)
-              .slice(startIdx, endIdx)
-              .map(({ date, movingAverage }) => ({
-                x: parseDate(date),
-                y: movingAverage,
-              }));
-
-            const data2 = [
-              {
-                id: tickerName,
-                color: mode === "dark" ? "#DDFFF5" : "#04111A",
-                data: dataArray,
-              },
-              {
-                id: "50 days Avg",
-                color: mode === "dark" ? "#DDFFF5" : "#04111A",
-                data: avg50array,
-              },
-              {
-                id: "Grandfather",
-                color: mode === "dark" ? "#DDFFF5" : "#04111A",
-                data: gf,
-              },
-              {
-                id: "Father",
-                color: mode === "dark" ? "#DDFFF5" : "#04111A",
-                data: f,
-              },
-              {
-                id: "Son",
-                color: mode === "dark" ? "#DDFFF5" : "#04111A",
-                data: s,
-              },
-            ];
-            setData(data2);
-            // console.log(dataCS[1].y[0]);
-            // console.log(data);
+        const data2 = [
+          {
+            id: tickerName,
+            data: dataArray,
           },
-          error: function (error) {
-            console.error("Error parsing CSV:", error.message);
+          {
+            id: "50 days Avg",
+            data: avg50array,
           },
-        });
+          {
+            id: "Grandfather",
+            data: gf,
+          },
+          {
+            id: "Father",
+            data: f,
+          },
+          {
+            id: "Son",
+            data: s,
+          },
+        ];
+        setData(data2);
       } catch (error) {
-        console.error("Error fetching CSV:", error.message);
+        console.log(error);
       }
     };
     fetchData();
@@ -170,6 +146,146 @@ const GraphDemo = ({
     father,
     son,
   ]);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch("./data/" + tickerName + ".NS.csv");
+  //       var csvData = await response.text();
+  //       const rows = csvData.split("\n");
+
+  //       for (let i = 0; i < rows.length; i++) {
+  //         const row = rows[i].trim().split(",");
+  //         const date = row[0];
+  //         if (date === formattedDate) {
+  //           setEndIdx(i);
+  //           setStartIdx(i - 15);
+  //           break;
+  //         }
+  //       }
+  //       let closeSum = 0;
+  //       for (let i = endIdx; i >= endIdx - 50; i--) {
+  //         const row = rows[i].trim().split(",");
+  //         const close = parseFloat(row[4]);
+  //         closeSum = closeSum + close;
+  //       }
+  //       setAvg50(closeSum / 50);
+
+  //       console.log(tickerName, avg50);
+
+  //       if (endIdx - 15 >= 0) setStartIdx(endIdx - 15);
+  //       else setStartIdx(0);
+
+  //       Papa.parse(csvData, {
+  //         header: true,
+  //         dynamicTyping: true,
+  //         complete: function (result) {
+  //           const dataArray = result.data.slice(startIdx, endIdx).map(
+  //             ({ Date, Close }) =>
+  //               Close && {
+  //                 x: parseDate(Date),
+  //                 y: Close,
+  //               }
+  //           );
+  //           // console.log(dataArray);
+  //           const dataArrayCS = result.data.slice(startIdx, endIdx).map(
+  //             ({ Date, Open, High, Low, Close }) =>
+  //               Open &&
+  //               High &&
+  //               Low &&
+  //               Close && {
+  //                 x: parseDate(Date),
+  //                 y: [
+  //                   Open.toFixed(2),
+  //                   High.toFixed(2),
+  //                   Low.toFixed(2),
+  //                   Close.toFixed(2),
+  //                 ],
+  //               }
+  //           );
+
+  //           // console.log(dataArrayCS);
+  //           setDataCS(dataArrayCS);
+
+  //           const avg50array = result.data.slice(startIdx, endIdx).map(
+  //             ({ Date, Close }) =>
+  //               Close && {
+  //                 x: parseDate(Date),
+  //                 y: avg50,
+  //               }
+  //           );
+
+  //           const gf = calMA(rows, grandfather)
+  //             .slice(startIdx, endIdx)
+  //             .map(({ date, movingAverage }) => ({
+  //               x: parseDate(date),
+  //               y: movingAverage,
+  //             }));
+
+  //           const f = calMA(rows, father)
+  //             .slice(startIdx, endIdx)
+  //             .map(({ date, movingAverage }) => ({
+  //               x: parseDate(date),
+  //               y: movingAverage,
+  //             }));
+
+  //           const s = calMA(rows, son)
+  //             .slice(startIdx, endIdx)
+  //             .map(({ date, movingAverage }) => ({
+  //               x: parseDate(date),
+  //               y: movingAverage,
+  //             }));
+
+  //           const data2 = [
+  //             {
+  //               id: tickerName,
+  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
+  //               data: dataArray,
+  //             },
+  //             {
+  //               id: "50 days Avg",
+  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
+  //               data: avg50array,
+  //             },
+  //             {
+  //               id: "Grandfather",
+  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
+  //               data: gf,
+  //             },
+  //             {
+  //               id: "Father",
+  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
+  //               data: f,
+  //             },
+  //             {
+  //               id: "Son",
+  //               color: mode === "dark" ? "#DDFFF5" : "#04111A",
+  //               data: s,
+  //             },
+  //           ];
+  //           setData(data2);
+  //           // console.log(dataCS[1].y[0]);
+  //           // console.log(data);
+  //         },
+  //         error: function (error) {
+  //           console.error("Error parsing CSV:", error.message);
+  //         },
+  //       });
+  //     } catch (error) {
+  //       console.error("Error fetching CSV:", error.message);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [
+  //   startIdx,
+  //   endIdx,
+  //   tickerName,
+  //   formattedDate,
+  //   avg50,
+  //   grandfather,
+  //   father,
+  //   son,
+  // ]);
 
   const calMA = (rows, n) => {
     if (n === 0) return undefined;

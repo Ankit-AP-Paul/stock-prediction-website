@@ -4,7 +4,6 @@ import Layout from "@/components/Layout";
 import GraphDemo from "@/components/GraphDemo";
 import ReactDom from "react-dom";
 import DatePicker from "react-datepicker";
-
 import "react-datepicker/dist/react-datepicker.css";
 
 const tickers = [
@@ -144,7 +143,7 @@ const GfsInput = ({ placeholder, setter }) => {
 const dashboard = ({ mode }) => {
   const [chart, setChart] = useState(1);
   const [tickerRows, setTickerRows] = useState([]);
-  const [activeTicker, setActiveTicker] = useState("");
+  const [activeTicker, setActiveTicker] = useState("TATAMOTORS");
   const [grandfather, setGrandfather] = useState(200);
   const [father, setFather] = useState(50);
   const [son, setSon] = useState(10);
